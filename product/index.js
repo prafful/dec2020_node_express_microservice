@@ -38,15 +38,11 @@ connection.connect(err=>{
 app.get("/get/products", (req,res)=>{
   
         var sql = "select * from shop_product"
-        connection.query(sql, (err, data)=>{
+        connection.query(sql, (err, dataproduct)=>{
             if(err)
                 throw err
-            connection.end((err)=>{
-                if(err)
-                    throw err
-                console.log("Connection to database closed!");
-            })    
-            res.send(data)    
+           
+            res.send(dataproduct)    
         })
     })
 
@@ -54,12 +50,12 @@ app.get("/get/products", (req,res)=>{
 app.get("/get/products/:code", (req, res)=>{
     console.log("Get product inventory for code " + req.params.code)
     var sql = "select * from shop_product where product_code='" + req.params.code+"'"
-    connection.query(sql, (err, data)=>{
+    connection.query(sql, (err, dataproduct)=>{
         if(err)
             throw err
-        console.log(data)
-        console.log(data.length)
-        if(data.length == 0){
+        console.log(dataproduct)
+        console.log(dataproduct.length)
+        if(dataproduct.length == 0){
             res.send({
                 id:0,
                 message: "Invalid product code"
@@ -72,7 +68,23 @@ app.get("/get/products/:code", (req, res)=>{
                     .then(response=>{
                         console.log("Receiving inventory quantity from inventory api....");
                         console.log(response.data)
-                        res.send(response.data)
+                        if(response.data[0].product_quantity>0){
+                            console.log("Quantity is more than 0!")
+                            var sqlupdate = "UPDATE shop_product SET inventory_status = '1' WHERE product_code='" + req.params.code+"'"
+                            console.log(sqlupdate)
+                        }else{
+                            console.log("Quantity is 0!")
+                            var sqlupdate = "UPDATE shop_product SET inventory_status = '0' WHERE product_code='" + req.params.code+"'"
+                            console.log(sqlupdate)
+                        }    
+                        connection.query(sqlupdate, (err, data)=>{
+                                if(err)
+                                    throw err
+                                
+                                res.send(data)    
+                            })
+                            //res.send(dataproduct)
+                     
                     })
                     .catch(error=>{
                         console.log(error)

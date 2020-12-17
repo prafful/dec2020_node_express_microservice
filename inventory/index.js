@@ -41,10 +41,11 @@ app.get("/get/inventory/:code", (req, res)=>{
         console.log(data)
         console.log(data.length)
         if(data.length == 0){
-            res.send({
+            res.send([{
                 id:0,
-                message: "Invalid product code"
-            })
+                message: "Invalid product code",
+                product_quantity: 0
+            }])
         }else{
             res.send(data)  
         }
