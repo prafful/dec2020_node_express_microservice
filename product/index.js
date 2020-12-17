@@ -81,10 +81,17 @@ app.get("/get/products/:code", (req, res)=>{
                                 if(err)
                                     throw err
                                 
-                                res.send(data)    
+                                console.log(data)    
+                                
                             })
                             //res.send(dataproduct)
-                     
+                            var sql = "select * from shop_product where product_code='" + req.params.code+"'"
+                            connection.query(sql, (err, finalproduct)=>{
+                                if(err)
+                                    throw err
+                                console.log(finalproduct)
+                                res.send(finalproduct)
+                            })     
                     })
                     .catch(error=>{
                         console.log(error)
