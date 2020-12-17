@@ -27,11 +27,16 @@ app.get("/posts", (req,res)=>{
             })
 })
 
-app.get("/get/products", (req,res)=>{
-    connection.connect(err=>{
+
+connection.connect(err=>{
         if(err)
             throw err
         console.log("Connected to database!!!!")
+
+})
+
+app.get("/get/products", (req,res)=>{
+  
         var sql = "select * from shop_product"
         connection.query(sql, (err, data)=>{
             if(err)
@@ -44,7 +49,7 @@ app.get("/get/products", (req,res)=>{
             res.send(data)    
         })
     })
-})
+
 
 app.get("/get/products/:code", (req, res)=>{
     console.log("Get product inventory for code " + req.params.code)
@@ -60,7 +65,18 @@ app.get("/get/products/:code", (req, res)=>{
                 message: "Invalid product code"
             })
         }else{
-            res.send(data)
+            //res.send(data)
+            //communicate with inventory api to get inventory quantity
+            //if inventory quantity is more than zero then update the inventory status in product db.
+            axios.get("http://localhost:1235/get/inventory/"+ req.params.code)
+                    .then(response=>{
+                        console.log("Receiving inventory quantity from inventory api....");
+                        console.log(response.data)
+                        res.send(response.data)
+                    })
+                    .catch(error=>{
+                        console.log(error)
+                    })
         }
         
     })
